@@ -1,3 +1,9 @@
+const mongoose = require("mongoose");
+
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
@@ -19,6 +25,7 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+
   const { status = 500, message = "server error" } = err;
   res.status(status).json({ message: message });
 });

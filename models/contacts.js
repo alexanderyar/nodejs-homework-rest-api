@@ -1,77 +1,58 @@
-const { nanoid } = require("nanoid");
-const fs = require("fs/promises");
+const { Schema, model } = require("mongoose");
+const Joi = require("joi");
 
-const path = require("path");
+const { handleErrors } = require("../helpers/handeErrors");
 
-const contactsPath = path.join(__dirname, "contacts.json");
+const contactObjectSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string(),
+  phone: Joi.string(),
+  favorite: Joi.bool(),
+});
 
-const listContacts = async () => {
-  const data = await fs.readFile(`${contactsPath}`);
+const contactObjectUpdateSchema = Joi.object({
+  name: Joi.string(),
+  email: Joi.string(),
+  phone: Joi.string(),
+  favorite: Joi.bool(),
+});
 
-  return JSON.parse(data);
+const contactUpdateFavoriteSchema = Joi.object({
+  favorite: Joi.bool().required(),
+});
+
+const JoiSchemas = {
+  contactObjectSchema,
+  contactObjectUpdateSchema,
+  contactUpdateFavoriteSchema,
 };
 
-const getContactById = async (contactId) => {
-  const data = await listContacts();
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+      unique: true,
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
-  const result = data.find((contact) => contactId === contact.id);
+contactSchema.post("save", handleErrors);
 
-  return result || null;
-};
-
-const removeContact = async (contactId) => {
-  const data = await listContacts();
-
-  const deletedContact = await getContactById(contactId);
-
-  if (!deletedContact) return null;
-
-  const newData = data.filter((contact) => contact.id !== contactId);
-
-  await fs.writeFile(contactsPath, JSON.stringify(newData, null, 2));
-
-  return deletedContact;
-};
-
-const addContact = async ({ name, email, phone }) => {
-  const data = await listContacts();
-
-  const newContact = { name, email, phone, id: nanoid() };
-
-  const dataNew = [...data, newContact];
-
-  await fs.writeFile(contactsPath, JSON.stringify(dataNew, null, 2));
-
-  return newContact;
-};
-
-const updateContact = async (contactId, body) => {
-  const contact = await getContactById(contactId);
-  if (!contact) {
-    return null;
-  }
-
-  const result = { ...contact, ...body };
-
-  const contacts = await listContacts();
-
-  const filteredContacts = contacts.filter(
-    (contact) => contact.id !== contactId
-  );
-  const updatedContactsArray = [...filteredContacts, result];
-
-  await fs.writeFile(
-    contactsPath,
-    JSON.stringify(updatedContactsArray, null, 2)
-  );
-
-  return result;
-};
+const Contact = model("contact", contactSchema);
 
 module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
+  Contact,
+  JoiSchemas,
 };
