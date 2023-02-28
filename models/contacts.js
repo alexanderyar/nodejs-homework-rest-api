@@ -1,7 +1,7 @@
 const { Schema, model, SchemaTypes } = require("mongoose");
 const Joi = require("joi");
 
-const { handleErrors } = require("../helpers/");
+const { handleErrors } = require("../helpers/handeErrors");
 
 const contactObjectSchema = Joi.object({
   name: Joi.string().required(),
