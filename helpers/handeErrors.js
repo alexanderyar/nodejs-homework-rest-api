@@ -8,6 +8,5 @@ const handleErrors = (error, data, next) => {
   next();
 };
 
-module.exports = {
-  handleErrors,
-};
+module.exports = {handleErrors}
+

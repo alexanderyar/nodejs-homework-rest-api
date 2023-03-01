@@ -2,14 +2,11 @@ const express = require("express");
 
 const router = express.Router();
 
-const contactsCTRL = require("../../controllers/contacts")
+const contactsCTRL = require("../../controllers/contacts");
 
-const authenticate = require("../../helpers/authenticate");
-const { isValidIdMiddleware } = require("../../helpers/isValidIdMiddleware");
+const { authenticate, isValidIdMiddleware } = require("../../helpers/");
 
-
-
-router.get("/", authenticate, contactsCTRL.getAllContacts );
+router.get("/", authenticate, contactsCTRL.getAllContacts);
 
 router.get(
   "/:contactId",
@@ -18,7 +15,7 @@ router.get(
   contactsCTRL.getById
 );
 
-router.post("/", authenticate, contactsCTRL.addContact );
+router.post("/", authenticate, contactsCTRL.addContact);
 
 router.delete(
   "/:contactId",
